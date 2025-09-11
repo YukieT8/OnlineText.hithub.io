@@ -3,18 +3,681 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Editor - Продвинутый текстовый редактор</title>
+    <title>Nexus Editor Pro - Умный текстовый редактор</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Основные цвета */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #94a3b8;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --lighter: #ffffff;
+            --gray: #e2e8f0;
+            --text: #334155;
+            --text-light: #64748b;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            
+            /* Переменные для темы */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #334155;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --sidebar-bg: #ffffff;
+            --header-bg: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --toolbar-bg: #ffffff;
+            --editor-bg: #ffffff;
+            --menu-hover: #f1f5f9;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        /* Темная тема */
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --sidebar-bg: #1e293b;
+            --header-bg: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+            --toolbar-bg: #1e293b;
+            --editor-bg: #1e293b;
+            --menu-hover: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Стиль 1: Минимализм */
+        [data-style="minimal"] {
+            --radius: 6px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+        }
+
+        /* Стиль 2: Профессиональный */
+        [data-style="professional"] {
+            --radius: 8px;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        /* Стиль 3: Креативный */
+        [data-style="creative"] {
+            --radius: 16px;
+            --primary: #f43f5e;
+            --primary-dark: #e11d48;
+            --gradient: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+        }
+
+        /* Стиль 4: Техно */
+        [data-style="tech"] {
+            --radius: 4px;
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --gradient: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+        }
+
+        /* Стиль 5: Природа */
+        [data-style="nature"] {
+            --radius: 14px;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.5s ease;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background-color: var(--success);
+        }
+
+        .btn-primary:hover {
+            background-color: #0da271;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            animation: fadeInLeft 0.7s ease;
+            height: fit-content;
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 0.7rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+
+        .sidebar-menu li:hover {
+            background-color: var(--menu-hover);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .sidebar-menu li.active {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            background-color: var(--bg-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeIn 0.7s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        .toolbar {
+            padding: 1rem 1.5rem;
+            background-color: var(--toolbar-bg);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.6rem;
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-primary);
+        }
+
+        .toolbar-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            border: 1px solid transparent;
+            background-color: var(--bg-secondary);
+        }
+
+        .toolbar-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow-color);
+        }
+
+        .toolbar-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .toolbar-select {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .toolbar-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            padding: 5px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .color-picker:hover {
+            transform: scale(1.1);
+        }
+
+        /* Поле ввода текста */
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+            background: var(--editor-bg);
+        }
+
+        .text-editor-field {
+            min-height: 65vh;
+            padding: 2rem;
+            outline: none;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            width: 100%;
+            border: none;
+            background: var(--editor-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius);
+            margin: 1rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+            transition: var(--transition);
+        }
+
+        .text-editor-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 4px 25px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .editor-status {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--toolbar-bg);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Стили для модального окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .format-modal {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            transform: translateY(-20px);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-overlay.active .format-modal {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .format-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .format-option {
+            padding: 1.5rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: var(--bg-primary);
+        }
+
+        .format-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .format-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .format-name {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .format-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Стили для уведомлений */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification.error {
+            background-color: var(--accent);
+        }
+
+        .notification.info {
+            background-color: var(--info);
+        }
+
+        /* Стили для выбора темы */
+        .style-selector {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            border: 1px solid var(--border-color);
+        }
+
+        .style-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .style-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .style-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .style-btn.minimal {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .style-btn.professional {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        .style-btn.creative {
+            background: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+        }
+
+        .style-btn.tech {
+            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+        }
+
+        .style-btn.nature {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        }
+
+        .style-btn.active {
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Анимации */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .toolbar {
+                overflow-x: auto;
+            }
+            
+            .editor-status {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="header-content">
             <div class="logo">
                 <i class="fas fa-file-alt"></i>
-                <span>Nexus Editor</span>
+                <span>Nexus Editor Pro</span>
             </div>
             <div class="header-actions">
                 <button class="btn" id="new-doc">
@@ -28,6 +691,9 @@
                 <button class="btn btn-primary" id="download-btn">
                     <i class="fas fa-download"></i>
                     <span>Скачать</span>
+                </button>
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
                 </button>
             </div>
         </div>
@@ -143,9 +809,8 @@
                 </div>
             </div>
             
-            <!-- ВАЖНО: ПОЛЕ ДЛЯ ВВОДА ТЕКСТА -->
             <div class="editor-wrapper">
-                <div id="editor" class="text-editor-field"></div>
+                <div id="editor" class="text-editor-field" contenteditable="true"></div>
             </div>
             
             <div class="editor-status">
@@ -183,11 +848,487 @@
         </div>
     </div>
     
+    <!-- Выбор стиля -->
+    <div class="style-selector">
+        <span>Стиль:</span>
+        <div class="style-buttons">
+            <button class="style-btn minimal active" data-style="minimal" title="Минимализм"></button>
+            <button class="style-btn professional" data-style="professional" title="Профессиональный"></button>
+            <button class="style-btn creative" data-style="creative" title="Креативный"></button>
+            <button class="style-btn tech" data-style="tech" title="Техно"></button>
+            <button class="style-btn nature" data-style="nature" title="Природа"></button>
+        </div>
+    </div>
+    
     <footer>
-        <p>© 2023 Nexus Editor — Продвинутый текстовый редактор</p>
+        <p>© 2023 Nexus Editor Pro — Умный текстовый редактор</p>
     </footer>
 
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Переменные состояния
+            let currentDocument = {
+                name: 'Новый документ',
+                content: '',
+                lastModified: new Date()
+            };
+            
+            let documents = JSON.parse(localStorage.getItem('documents')) || [];
+            let recentDocuments = JSON.parse(localStorage.getItem('recentDocuments')) || [];
+            
+            // Элементы управления
+            const editor = document.getElementById('editor');
+            const saveBtn = document.getElementById('save-doc');
+            const newDocBtn = document.getElementById('new-doc');
+            const downloadBtn = document.getElementById('download-btn');
+            const themeToggle = document.getElementById('theme-toggle');
+            const wordCount = document.getElementById('word-count');
+            const charCount = document.getElementById('char-count');
+            const sidebarWordCount = document.getElementById('sidebar-word-count');
+            const sidebarCharCount = document.getElementById('sidebar-char-count');
+            const readingTime = document.getElementById('reading-time');
+            const formatModal = document.getElementById('format-modal');
+            const closeModal = document.getElementById('close-modal');
+            const formatOptions = document.querySelectorAll('.format-option');
+            const styleButtons = document.querySelectorAll('.style-btn');
+            
+            // Элементы бокового меню
+            const recentDocsBtn = document.getElementById('recent-docs');
+            const myDocsBtn = document.getElementById('my-docs');
+            const cloudStorageBtn = document.getElementById('cloud-storage');
+            const appearanceBtn = document.getElementById('appearance');
+            const languageBtn = document.getElementById('language');
+            const shortcutsBtn = document.getElementById('shortcuts');
+            const storageBtn = document.getElementById('storage');
+            
+            // Инициализация темы
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedStyle = localStorage.getItem('style') || 'minimal';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-style', savedStyle);
+            updateThemeIcon();
+            
+            // Активируем выбранный стиль
+            document.querySelector(`.style-btn[data-style="${savedStyle}"]`).classList.add('active');
+            
+            // Загрузка сохраненного документа
+            const savedContent = localStorage.getItem('currentDocument');
+            if (savedContent) {
+                editor.innerHTML = savedContent;
+                updateCounters();
+            }
+            
+            // Обработчики событий для редактора
+            editor.addEventListener('input', function() {
+                updateCounters();
+                localStorage.setItem('currentDocument', editor.innerHTML);
+            });
+            
+            // Настройка шрифта
+            document.getElementById('font-family').addEventListener('change', function() {
+                document.execCommand('fontName', false, this.value);
+            });
+            
+            // Настройка размера текста
+            document.getElementById('font-size').addEventListener('change', function() {
+                document.execCommand('fontSize', false, this.value);
+            });
+            
+            // Кнопки форматирования
+            document.getElementById('bold-btn').addEventListener('click', function() {
+                document.execCommand('bold', false, null);
+                this.classList.toggle('active');
+            });
+            
+            document.getElementById('italic-btn').addEventListener('click', function() {
+                document.execCommand('italic', false, null);
+                this.classList.toggle('active');
+            });
+            
+            document.getElementById('underline-btn').addEventListener('click', function() {
+                document.execCommand('underline', false, null);
+                this.classList.toggle('active');
+            });
+            
+            // Выравнивание
+            document.getElementById('align-left').addEventListener('click', function() {
+                document.execCommand('justifyLeft', false, null);
+                setActiveAlignmentButton(this);
+            });
+            
+            document.getElementById('align-center').addEventListener('click', function() {
+                document.execCommand('justifyCenter', false, null);
+                setActiveAlignmentButton(this);
+            });
+            
+            document.getElementById('align-right').addEventListener('click', function() {
+                document.execCommand('justifyRight', false, null);
+                setActiveAlignmentButton(this);
+            });
+            
+            document.getElementById('align-justify').addEventListener('click', function() {
+                document.execCommand('justifyFull', false, null);
+                setActiveAlignmentButton(this);
+            });
+            
+            function setActiveAlignmentButton(button) {
+                document.querySelectorAll('.toolbar-group:nth-child(4) .toolbar-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+            }
+            
+            // Списки
+            document.getElementById('list-ul').addEventListener('click', function() {
+                document.execCommand('insertUnorderedList', false, null);
+                this.classList.toggle('active');
+            });
+            
+            document.getElementById('list-ol').addEventListener('click', function() {
+                document.execCommand('insertOrderedList', false, null);
+                this.classList.toggle('active');
+            });
+            
+            // Цвет текста и фона
+            document.getElementById('text-color').addEventListener('change', function(e) {
+                document.execCommand('foreColor', false, e.target.value);
+            });
+            
+            document.getElementById('bg-color').addEventListener('change', function(e) {
+                document.execCommand('hiliteColor', false, e.target.value);
+            });
+            
+            // Функционал бокового меню
+            recentDocsBtn.addEventListener('click', function() {
+                showRecentDocuments();
+            });
+            
+            myDocsBtn.addEventListener('click', function() {
+                showMyDocuments();
+            });
+            
+            cloudStorageBtn.addEventListener('click', function() {
+                window.open('https://drive.google.com/', '_blank');
+                showNotification('Открытие Google Drive', 'info');
+            });
+            
+            appearanceBtn.addEventListener('click', function() {
+                showAppearanceSettings();
+            });
+            
+            languageBtn.addEventListener('click', function() {
+                showLanguageSettings();
+            });
+            
+            shortcutsBtn.addEventListener('click', function() {
+                showShortcutsHelp();
+            });
+            
+            storageBtn.addEventListener('click', function() {
+                showStorageInfo();
+            });
+            
+            // Новый документ
+            newDocBtn.addEventListener('click', function() {
+                createNewDocument();
+            });
+            
+            // Сохранение документа
+            saveBtn.addEventListener('click', function() {
+                saveDocument();
+            });
+            
+            // Переключение темы
+            themeToggle.addEventListener('click', function() {
+                toggleTheme();
+            });
+            
+            // Выбор стиля
+            styleButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const style = this.getAttribute('data-style');
+                    setStyle(style);
+                    
+                    // Обновляем активную кнопку
+                    styleButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Открытие модального окна
+            downloadBtn.addEventListener('click', function() {
+                formatModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Закрытие модального окна
+            closeModal.addEventListener('click', function() {
+                formatModal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Закрытие модального окна при клике вне его
+            formatModal.addEventListener('click', function(e) {
+                if (e.target === formatModal) {
+                    formatModal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Обработка выбора формата
+            formatOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const format = this.getAttribute('data-format');
+                    downloadDocument(format);
+                    
+                    setTimeout(() => {
+                        formatModal.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }, 1000);
+                });
+            });
+            
+            // Функции
+            function updateCounters() {
+                const text = editor.innerText || '';
+                const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+                const characters = text.length;
+                const readingTimeMin = Math.ceil(words / 200);
+                
+                wordCount.textContent = `Слов: ${words}`;
+                charCount.textContent = `Символов: ${characters}`;
+                sidebarWordCount.textContent = words;
+                sidebarCharCount.textContent = characters;
+                readingTime.textContent = `${readingTimeMin} мин`;
+            }
+            
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info'}-circle"></i>
+                    <span>${message}</span>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+            
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                updateThemeIcon();
+                showNotification(`Тема изменена на ${newTheme === 'light' ? 'светлую' : 'тёмную'}`, 'info');
+            }
+            
+            function updateThemeIcon() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                themeToggle.innerHTML = currentTheme === 'light' ? 
+                    '<i class="fas fa-moon"></i>' : 
+                    '<i class="fas fa-sun"></i>';
+            }
+            
+            function setStyle(style) {
+                document.documentElement.setAttribute('data-style', style);
+                localStorage.setItem('style', style);
+                showNotification(`Стиль изменен: ${getStyleName(style)}`, 'info');
+            }
+            
+            function getStyleName(style) {
+                const styles = {
+                    'minimal': 'Минимализм',
+                    'professional': 'Профессиональный',
+                    'creative': 'Креативный',
+                    'tech': 'Техно',
+                    'nature': 'Природа'
+                };
+                return styles[style] || style;
+            }
+            
+            function createNewDocument() {
+                if (editor.innerHTML.trim() !== '' && !confirm('Создать новый документ? Несохраненные изменения будут потеряны.')) {
+                    return;
+                }
+                
+                editor.innerHTML = '';
+                currentDocument = {
+                    name: 'Новый документ',
+                    content: '',
+                    lastModified: new Date()
+                };
+                
+                localStorage.removeItem('currentDocument');
+                updateCounters();
+                
+                showNotification('Новый документ создан', 'success');
+            }
+            
+            function saveDocument() {
+                const documentName = prompt('Введите название документа:', currentDocument.name);
+                
+                if (!documentName) return;
+                
+                currentDocument = {
+                    name: documentName,
+                    content: editor.innerHTML,
+                    lastModified: new Date()
+                };
+                
+                // Добавляем в список документов
+                const existingIndex = documents.findIndex(doc => doc.name === documentName);
+                if (existingIndex !== -1) {
+                    documents[existingIndex] = currentDocument;
+                } else {
+                    documents.push(currentDocument);
+                }
+                
+                // Добавляем в недавние документы
+                recentDocuments = recentDocuments.filter(doc => doc.name !== documentName);
+                recentDocuments.unshift(currentDocument);
+                if (recentDocuments.length > 5) recentDocuments.pop();
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('documents', JSON.stringify(documents));
+                localStorage.setItem('recentDocuments', JSON.stringify(recentDocuments));
+                localStorage.setItem('currentDocument', editor.innerHTML);
+                
+                saveBtn.classList.add('pulse');
+                setTimeout(() => saveBtn.classList.remove('pulse'), 1000);
+                
+                showNotification(`Документ "${documentName}" сохранен`, 'success');
+            }
+            
+            function downloadDocument(format) {
+                const fileName = prompt('Введите имя файла:', currentDocument.name) || currentDocument.name;
+                const text = editor.innerText;
+                const content = editor.innerHTML;
+                
+                let fileContent, fileType, extension;
+                
+                switch(format) {
+                    case 'txt':
+                        fileContent = text;
+                        fileType = 'text/plain';
+                        extension = 'txt';
+                        break;
+                    case 'html':
+                        fileContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${fileName}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 2rem;
+            color: #334155;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    ${content}
+</body>
+</html>`;
+                        fileType = 'text/html';
+                        extension = 'html';
+                        break;
+                    case 'doc':
+                        fileContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" 
+xmlns:w="urn:schemas-microsoft-com:office:word" 
+xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <title>${fileName}</title>
+</head>
+<body>
+    ${content}
+</body>
+</html>`;
+                        fileType = 'application/msword';
+                        extension = 'doc';
+                        break;
+                }
+                
+                const blob = new Blob([fileContent], { type: fileType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileName}.${extension}`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showNotification(`Документ сохранен как ${fileName}.${extension}`, 'success');
+            }
+            
+            function showRecentDocuments() {
+                if (recentDocuments.length === 0) {
+                    showNotification('Нет недавних документов', 'info');
+                    return;
+                }
+                
+                let message = 'Недавние документы:\n\n';
+                recentDocuments.forEach((doc, index) => {
+                    const date = new Date(doc.lastModified).toLocaleDateString();
+                    message += `${index + 1}. ${doc.name} (${date})\n`;
+                });
+                
+                alert(message);
+            }
+            
+            function showMyDocuments() {
+                if (documents.length === 0) {
+                    showNotification('Нет сохраненных документов', 'info');
+                    return;
+                }
+                
+                let message = 'Мои документы:\n\n';
+                documents.forEach((doc, index) => {
+                    const date = new Date(doc.lastModified).toLocaleDateString();
+                    message += `${index + 1}. ${doc.name} (${date})\n`;
+                });
+                
+                const choice = prompt(`${message}\nВведите номер документа для загрузки или 0 для отмены:`);
+                const index = parseInt(choice) - 1;
+                
+                if (index >= 0 && index < documents.length) {
+                    editor.innerHTML = documents[index].content;
+                    currentDocument = documents[index];
+                    updateCounters();
+                    showNotification(`Документ "${documents[index].name}" загружен`, 'success');
+                }
+            }
+            
+            function showAppearanceSettings() {
+                alert('Настройки внешнего вида:\n\nИспользуйте переключатель темы в правом верхнем углу и выбор стиля в левом нижнем углу для изменения внешнего вида редактора.');
+            }
+            
+            function showLanguageSettings() {
+                alert('Настройки языка:\n\nВ текущей версии доступен только русский язык интерфейса.');
+            }
+            
+            function showShortcutsHelp() {
+                alert('Горячие клавиши:\n\nCtrl+B - Жирный текст\nCtrl+I - Курсив\nCtrl+U - Подчеркивание\nCtrl+Z - Отменить\nCtrl+Y - Повторить\nCtrl+S - Сохранить');
+            }
+            
+            function showStorageInfo() {
+                const usedSpace = Math.round(JSON.stringify(localStorage).length / 1024);
+                alert(`Информация о хранилище:\n\nИспользовано: ${usedSpace} KB\nМаксимальный размер: ~5 MB\n\nДокументов: ${documents.length}\nНедавних: ${recentDocuments.length}`);
+            }
+            
+            // Инициализация
+            updateCounters();
+        });
+    </script>
 </body>
 </html>
