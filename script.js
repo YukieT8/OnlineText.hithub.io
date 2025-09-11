@@ -21,6 +21,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeModal = document.getElementById('close-modal');
     const formatOptions = document.querySelectorAll('.format-option');
     
+    // Элементы бокового меню
+    const recentDocsBtn = document.getElementById('recent-docs');
+    const myDocsBtn = document.getElementById('my-docs');
+    const cloudStorageBtn = document.getElementById('cloud-storage');
+    const appearanceBtn = document.getElementById('appearance');
+    const languageBtn = document.getElementById('language');
+    const shortcutsBtn = document.getElementById('shortcuts');
+    const storageBtn = document.getElementById('storage');
+    
     // Настройка шрифта
     const fontFamily = document.getElementById('font-family');
     fontFamily.addEventListener('change', function() {
@@ -100,6 +109,58 @@ document.addEventListener('DOMContentLoaded', function() {
         quill.format('background', e.target.value);
     });
     
+    // Функционал бокового меню
+    recentDocsBtn.addEventListener('click', function() {
+        showNotification('Просмотр последних документов');
+    });
+    
+    myDocsBtn.addEventListener('click', function() {
+        showNotification('Просмотр моих документов');
+    });
+    
+    cloudStorageBtn.addEventListener('click', function() {
+        // Переход в Google Drive
+        window.open('https://drive.google.com/', '_blank');
+        showNotification('Открытие Google Drive для сохранения документов');
+    });
+    
+    appearanceBtn.addEventListener('click', function() {
+        showNotification('Настройка внешнего вида');
+    });
+    
+    languageBtn.addEventListener('click', function() {
+        showNotification('Выбор языка интерфейса');
+    });
+    
+    shortcutsBtn.addEventListener('click', function() {
+        showNotification('Настройка горячих клавиш');
+    });
+    
+    storageBtn.addEventListener('click', function() {
+        showNotification('Управление хранилищем');
+    });
+    
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.textContent = message;
+        notification.style.position = 'fixed';
+        notification.style.bottom = '20px';
+        notification.style.right = '20px';
+        notification.style.backgroundColor = 'var(--primary)';
+        notification.style.color = 'white';
+        notification.style.padding = '12px 24px';
+        notification.style.borderRadius = 'var(--radius-sm)';
+        notification.style.zIndex = '1000';
+        notification.style.boxShadow = 'var(--shadow)';
+        notification.style.fontWeight = '500';
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 3000);
+    }
+    
     // Подсчет слов и символов
     quill.on('text-change', function() {
         const text = quill.getText();
@@ -158,24 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
         
         // В реальном приложении здесь была бы логика сохранения на сервер
-        const notification = document.createElement('div');
-        notification.textContent = 'Документ сохранен!';
-        notification.style.position = 'fixed';
-        notification.style.bottom = '20px';
-        notification.style.right = '20px';
-        notification.style.backgroundColor = 'var(--success)';
-        notification.style.color = 'white';
-        notification.style.padding = '12px 24px';
-        notification.style.borderRadius = 'var(--radius-sm)';
-        notification.style.zIndex = '1000';
-        notification.style.boxShadow = 'var(--shadow)';
-        notification.style.fontWeight = '500';
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 3000);
+        showNotification('Документ сохранен!');
     });
     
     // Открытие модального окна
@@ -285,10 +329,6 @@ xmlns="http://www.w3.org/TR/REC-html40">
 </html>`;
                     downloadFile(docContent, fileName + '.doc', 'application/msword');
                     break;
-                case 'pdf':
-                    // В реальном приложении здесь использовалась бы библиотека вроде jsPDF
-                    alert('Для экспорта в PDF в реальном приложении использовалась бы специализированная библиотека');
-                    break;
             }
             
             // Закрываем модальное окно после выбора
@@ -310,24 +350,6 @@ xmlns="http://www.w3.org/TR/REC-html40">
         a.click();
         URL.revokeObjectURL(url);
         
-        // Уведомление о скачивании
-        const notification = document.createElement('div');
-        notification.textContent = 'Файл скачивается...';
-        notification.style.position = 'fixed';
-        notification.style.bottom = '20px';
-        notification.style.right = '20px';
-        notification.style.backgroundColor = 'var(--primary)';
-        notification.style.color = 'white';
-        notification.style.padding = '12px 24px';
-        notification.style.borderRadius = 'var(--radius-sm)';
-        notification.style.zIndex = '1000';
-        notification.style.boxShadow = 'var(--shadow)';
-        notification.style.fontWeight = '500';
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 3000);
+        showNotification('Файл скачивается...');
     }
 });
