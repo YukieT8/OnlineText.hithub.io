@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Editor - Продвинутый текстовый редактор</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+                <span>Nexus Editor</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn" id="new-doc">
+                    <i class="fas fa-plus"></i>
+                    <span>Новый</span>
+                </button>
+                <button class="btn" id="save-doc">
+                    <i class="fas fa-save"></i>
+                    <span>Сохранить</span>
+                </button>
+                <button class="btn btn-primary" id="download-btn">
+                    <i class="fas fa-download"></i>
+                    <span>Скачать</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-file"></i>
+                    <span>Документы</span>
+                </h3>
+                <ul class="sidebar-menu">
+                    <li><i class="fas fa-clock"></i> Последние документы</li>
+                    <li><i class="fas fa-folder"></i> Мои документы</li>
+                    <li><i class="fas fa-cloud"></i> Облачное хранилище</li>
+                    <li><i class="fas fa-share-alt"></i> Общие документы</li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-cog"></i>
+                    <span>Настройки</span>
+                </h3>
+                <ul class="sidebar-menu">
+                    <li><i class="fas fa-paint-brush"></i> Внешний вид</li>
+                    <li><i class="fas fa-language"></i> Язык</li>
+                    <li><i class="fas fa-keyboard"></i> Горячие клавиши</li>
+                    <li><i class="fas fa-database"></i> Хранилище</li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Статистика</span>
+                </h3>
+                <ul class="sidebar-menu">
+                    <li><i class="fas fa-font"></i> Символов: <span id="sidebar-char-count">0</span></li>
+                    <li><i class="fas fa-file-word"></i> Слов: <span id="sidebar-word-count">0</span></li>
+                    <li><i class="fas fa-clock"></i> Время чтения: <span id="reading-time">0 мин</span></li>
+                </ul>
+            </div>
+        </aside>
+        
+        <section class="editor-container">
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <select class="toolbar-select" id="font-family">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="'Inter', sans-serif" selected>Inter</option>
+                    </select>
+                </div>
+                
+                <div class="toolbar-group">
+                    <select class="toolbar-select" id="font-size">
+                        <option value="1rem">Обычный</option>
+                        <option value="1.2rem">Большой</option>
+                        <option value="0.9rem">Маленький</option>
+                        <option value="1.5rem">Заголовок</option>
+                        <option value="2rem">Большой заголовок</option>
+                    </select>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="bold-btn" title="Жирный">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="toolbar-btn" id="italic-btn" title="Курсив">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="toolbar-btn" id="underline-btn" title="Подчеркивание">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="align-left" title="Выровнять по левому краю">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button class="toolbar-btn" id="align-center" title="Выровнять по центру">
+                        <i class="fas fa-align-center"></i>
+                    </button>
+                    <button class="toolbar-btn" id="align-right" title="Выровнять по правому краю">
+                        <i class="fas fa-align-right"></i>
+                    </button>
+                    <button class="toolbar-btn" id="align-justify" title="Выровнять по ширине">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" id="list-ul" title="Маркированный список">
+                        <i class="fas fa-list-ul"></i>
+                    </button>
+                    <button class="toolbar-btn" id="list-ol" title="Нумерованный список">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <button class="toolbar-btn" id="indent" title="Увеличить отступ">
+                        <i class="fas fa-indent"></i>
+                    </button>
+                    <button class="toolbar-btn" id="outdent" title="Уменьшить отступ">
+                        <i class="fas fa-outdent"></i>
+                    </button>
+                </div>
+                
+                <div class="toolbar-group">
+                    <input type="color" class="color-picker" id="text-color" title="Цвет текста">
+                    <input type="color" class="color-picker" id="bg-color" value="#ffffff" title="Цвет фона">
+                </div>
+            </div>
+            
+            <div id="editor"></div>
+            
+            <div class="editor-status">
+                <span id="word-count">Слов: 0</span>
+                <span id="char-count">Символов: 0</span>
+                <span id="page-info">Страница: 1</span>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Модальное окно выбора формата -->
+    <div class="modal-overlay" id="format-modal">
+        <div class="format-modal">
+            <button class="close-modal" id="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title">Выберите формат для скачивания</h2>
+            <div class="format-options">
+                <div class="format-option" data-format="txt">
+                    <i class="fas fa-file-alt format-icon"></i>
+                    <span class="format-name">TXT</span>
+                    <span class="format-desc">Простой текстовый формат</span>
+                </div>
+                <div class="format-option" data-format="html">
+                    <i class="fab fa-html5 format-icon"></i>
+                    <span class="format-name">HTML</span>
+                    <span class="format-desc">Веб-страница</span>
+                </div>
+                <div class="format-option" data-format="doc">
+                    <i class="fas fa-file-word format-icon"></i>
+                    <span class="format-name">DOC</span>
+                    <span class="format-desc">Документ Word</span>
+                </div>
+                <div class="format-option" data-format="pdf">
+                    <i class="fas fa-file-pdf format-icon"></i>
+                    <span class="format-name">PDF</span>
+                    <span class="format-desc">Портативный формат</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 Nexus Editor — Продвинутый текстовый редактор</p>
+    </footer>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
